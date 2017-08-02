@@ -1,0 +1,8 @@
+[package]
+name = "movie_reviews_backend"
+version = "0.1.0"
+authors = ["Miro Dojkic <mdojkic@gmail.com>"]
+
+[dependencies]
+iron = "0.5.*"
+router = "*"
