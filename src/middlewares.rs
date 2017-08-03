@@ -17,7 +17,6 @@ use iron::prelude::*;
 use iron::status;
 
 pub fn index(_: &mut Request) -> IronResult<Response> {
-
   let connection = establish_connection();
   let results = users.load::<User>(&connection).expect("Error loading users");
   println!("Displaying {} users", results.len());
