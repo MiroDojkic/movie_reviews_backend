@@ -18,13 +18,18 @@ fn main() {
   dotenv().ok();
 
   let connection = establish_connection();
-  run_pending_migrations(&connection);
+  let success = run_pending_migrations(&connection);
 
-  let host = env::var("HOST").expect("HOST must be set");
+  match success {
+      Ok(_) => println!("Migrations passed"),
+      Err(e) => println!("Error running migrations: {:?}", e),
+  }
+
   let port = env::var("PORT").expect("PORT must be set");
+  let host = format!("{}:{}", "0.0.0.0", port);
   let mut router = Router::new();
 
   router.get("/", middlewares::index, "index");
 
-  Iron::new(router).http(format!("{}:{}", host, port)).unwrap();
+  Iron::new(router).http(host).unwrap();
 }
