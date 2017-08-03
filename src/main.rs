@@ -12,12 +12,12 @@ use router::Router;
 pub mod middlewares;
 
 fn main() {
-    dotenv().ok();
+  dotenv().ok();
 
-    let host = env::var("HOST").expect("HOST must be set");
-    let mut router = Router::new();
+  let host = env::var("HOST").expect("HOST must be set");
+  let mut router = Router::new();
 
-    router.get("/", middlewares::index, "index");
+  router.get("/", middlewares::index, "index");
 
-    Iron::new(router).http(host).unwrap();
+  Iron::new(router).http(host).unwrap();
 }
