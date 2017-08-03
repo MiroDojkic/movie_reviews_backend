@@ -20,7 +20,5 @@ pub fn index(_: &mut Request) -> IronResult<Response> {
   let connection = establish_connection();
   let results = users.load::<User>(&connection).expect("Error loading users");
 
-  println!("Displaying {} users", results.len());
-
   Ok(Response::with((status::Ok, json!(results).to_string())))
 }
