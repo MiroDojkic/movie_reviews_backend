@@ -1,7 +1,10 @@
 extern crate iron;
 extern crate router;
+extern crate dotenv;
 
-use std::net::{SocketAddrV4, Ipv4Addr};
+use std::env;
+
+use dotenv::dotenv;
 
 use iron::prelude::*;
 use router::Router;
@@ -9,8 +12,10 @@ use router::Router;
 pub mod middlewares;
 
 fn main() {
+    dotenv().ok();
+
+    let host = env::var("HOST").expect("HOST must be set");
     let mut router = Router::new();
-    let host = SocketAddrV4::new(Ipv4Addr::new(0,0,0,0), 8080);
 
     router.get("/", middlewares::index, "index");
 
