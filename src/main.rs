@@ -18,11 +18,9 @@ fn main() {
   dotenv().ok();
 
   let connection = establish_connection();
-  let success = run_pending_migrations(&connection);
-
-  match success {
-      Ok(_) => println!("Migrations passed"),
-      Err(e) => println!("Error running migrations: {:?}", e),
+  match run_pending_migrations(&connection) {
+    Ok(_) => println!("Migrations done"),
+    Err(err) => println!("Migrations failed: {:?}", err),
   }
 
   let port = env::var("PORT").expect("PORT must be set");
