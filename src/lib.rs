@@ -1,15 +1,17 @@
 #[macro_use] extern crate diesel_codegen;
-
-pub mod schema;
-pub mod models;
-
 #[macro_use] extern crate diesel;
+#[macro_use] extern crate serde_json;
+#[macro_use] extern crate serde_derive;
+
 extern crate dotenv;
 
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
 use dotenv::dotenv;
 use std::env;
+
+pub mod schema;
+pub mod models;
 
 pub fn establish_connection() -> PgConnection {
     dotenv().ok();
