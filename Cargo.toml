@@ -6,3 +6,6 @@ authors = ["Miro Dojkic <mdojkic@gmail.com>"]
 [dependencies]
 iron = "0.5.*"
 router = "*"
+dotenv = "0.10.1"
+diesel = { version = "0.15.0", features = ["postgres"] }
+diesel_codegen = { version = "0.15.0", features = ["postgres"] }
