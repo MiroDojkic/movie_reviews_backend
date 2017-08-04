@@ -2,6 +2,8 @@ extern crate iron;
 extern crate router;
 extern crate dotenv;
 extern crate diesel;
+extern crate jwt;
+extern crate crypto;
 extern crate movie_reviews_backend;
 
 use self::movie_reviews_backend::*;
@@ -28,6 +30,7 @@ fn main() {
   let mut router = Router::new();
 
   router.get("/", middlewares::index, "index");
+  router.post("/login", middlewares::authenticate, "authenticate");
 
   Iron::new(router).http(host).unwrap();
 }
