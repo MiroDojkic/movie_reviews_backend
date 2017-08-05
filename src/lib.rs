@@ -2,6 +2,7 @@
 #[macro_use] extern crate diesel;
 #[macro_use] extern crate serde_json;
 #[macro_use] extern crate serde_derive;
+extern crate iron;
 extern crate dotenv;
 
 use diesel::prelude::*;
@@ -11,6 +12,7 @@ use std::env;
 
 pub mod schema;
 pub mod models;
+pub mod controllers;
 pub mod utils;
 
 pub fn establish_connection() -> PgConnection {

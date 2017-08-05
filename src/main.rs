@@ -2,9 +2,9 @@ extern crate iron;
 extern crate router;
 extern crate dotenv;
 extern crate diesel;
-extern crate movie_reviews_backend;
+extern crate common;
 
-use self::movie_reviews_backend::*;
+use common::{establish_connection, controllers};
 use std::env;
 
 use dotenv::dotenv;
@@ -28,7 +28,7 @@ fn main() {
   let mut router = Router::new();
 
   router.get("/", middlewares::index, "index");
-  router.post("/login", middlewares::login, "login");
+  router.post("/login", controllers::auth::login, "login");
 
   Iron::new(router).http(host).unwrap();
 }
