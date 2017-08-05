@@ -1,13 +1,19 @@
-extern crate movie_reviews_backend;
-extern crate diesel;
 extern crate serde_json;
 extern crate serde_derive;
 extern crate bodyparser;
+extern crate jsonwebtoken as jwt;
 
-use self::movie_reviews_backend::*;
-use self::movie_reviews_backend::models::user::*;
-use self::movie_reviews_backend::schema::users::dsl::*;
-use self::diesel::prelude::*;
+use ::{establish_connection};
+use models::user::*;
+use models::auth::*;
+use models::auth::*;
+use schema::users::dsl::*;
+
+use utils::auth::*;
+
+use diesel::prelude::*;
+use self::jwt::{encode, decode, Header, Validation};
+use self::jwt::errors::{ErrorKind};
 
 // Seems like Rust is still not OK with using extern macros,
 // therefore cargo flags this as unused import,
@@ -19,19 +25,16 @@ use self::serde_derive::*;
 use iron::prelude::*;
 use iron::status;
 
-#[derive(Clone, Deserialize)]
-struct UserLogin {
-    email: String,
-    password: String
-}
+pub fn login(req: &mut Request) -> IronResult<Response> {
+  let user_login = req.get::<bodyparser::Struct<UserLogin>>();
 
-pub fn authenticate(req: &mut Request) -> IronResult<Response> {
-  let user = req.get::<bodyparser::Struct<UserLogin>>().unwrap().unwrap();
+  let authenticated = match user_login {
+    Ok(Some(user_login)) => Ok(authenticate(&user_login)),
+    Ok(None) => Ok(None),
+    Err(e) => Err(e)
+  };
 
-  let user_email = user.email;
-  let user_password = user.password;
-
-  Ok(Response::with((status::Ok, user_email)))
+  Ok(Response::with((status::Ok, format!("{}", authenticated.unwrap().unwrap().email))))
 }
 
 pub fn index(_: &mut Request) -> IronResult<Response> {
