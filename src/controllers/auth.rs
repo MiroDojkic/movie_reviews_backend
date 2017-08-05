@@ -1,8 +1,11 @@
 extern crate bodyparser;
 extern crate iron;
+extern crate jsonwebtoken as jwt;
 
 use self::iron::prelude::*;
 use self::iron::status;
+use self::jwt::{encode, decode, Header, Validation};
+use self::jwt::errors::{ErrorKind};
 
 use models::auth::*;
 use utils::auth::*;
@@ -16,5 +19,9 @@ pub fn login(req: &mut Request) -> IronResult<Response> {
     Err(e) => Err(e)
   };
 
-  Ok(Response::with((status::Ok, format!("{}", authenticated.unwrap().unwrap().email))))
+  match authenticated {
+    Ok(Some(user)) => Ok(Response::with((status::Ok, format!("{}", user.email)))),
+    Ok(None) => Ok(Response::with((status::NotFound, "Bad credentials!"))),
+    Err(e) => Err(IronError::new(e, status::InternalServerError)),
+  }
 }

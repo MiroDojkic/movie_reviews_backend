@@ -30,10 +30,7 @@ pub fn authenticate(user_login: &UserLogin) -> Option<User> {
 
     if user.password == passhash {
       return Some(user);
-    } else {
-      return None;
     }
-  } else {
-    return None;
   };
+  return None
 }

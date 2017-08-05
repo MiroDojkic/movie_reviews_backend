@@ -12,8 +12,6 @@ use iron::prelude::*;
 use router::Router;
 use diesel::migrations::{run_pending_migrations};
 
-pub mod middlewares;
-
 fn main() {
   dotenv().ok();
 
@@ -27,7 +25,7 @@ fn main() {
   let host = format!("{}:{}", "0.0.0.0", port);
   let mut router = Router::new();
 
-  router.get("/", middlewares::index, "index");
+  router.get("/", controllers::user::index, "index");
   router.post("/login", controllers::auth::login, "login");
 
   Iron::new(router).http(host).unwrap();

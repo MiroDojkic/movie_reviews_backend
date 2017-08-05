@@ -1,17 +1,9 @@
 extern crate serde_json;
 extern crate serde_derive;
-extern crate bodyparser;
-extern crate jsonwebtoken as jwt;
 
-use ::{establish_connection};
-use common::models::user::*;
-use common::schema::users::dsl::*;
-
-use common::utils::auth::*;
-
+use iron::prelude::*;
+use iron::status;
 use diesel::prelude::*;
-use self::jwt::{encode, decode, Header, Validation};
-use self::jwt::errors::{ErrorKind};
 
 // Seems like Rust is still not OK with using extern macros,
 // therefore cargo flags this as unused import,
@@ -20,8 +12,10 @@ use self::jwt::errors::{ErrorKind};
 use self::serde_json::*;
 use self::serde_derive::*;
 
-use iron::prelude::*;
-use iron::status;
+use ::{establish_connection};
+use models::user::*;
+use schema::users::dsl::*;
+use utils::auth::*;
 
 pub fn index(_: &mut Request) -> IronResult<Response> {
   let connection = establish_connection();
