@@ -1,14 +1,11 @@
 extern crate crypto;
-extern crate diesel;
-
-use ::{establish_connection};
-use ::models::user::*;
-use ::models::auth::*;
-use schema::users::dsl::*;
 
 use self::crypto::digest::Digest;
 use self::crypto::sha2::Sha256;
-use self::diesel::prelude::*;
+
+use ::models::user::*;
+use ::models::auth::*;
+use ::repositories::user_repository;
 
 pub fn hash(pwd: &str) -> String {
   let mut hasher = Sha256::new();
@@ -18,12 +15,7 @@ pub fn hash(pwd: &str) -> String {
 }
 
 pub fn authenticate(user_login: &UserLogin) -> Option<User> {
-  let connection = establish_connection();
-  let user = users
-    .filter(email.eq(&user_login.email))
-    .get_result::<User>(&connection)
-    .optional()
-    .expect("Error loading users");
+  let user = user_repository::get_by_email(&user_login.email);
 
   if let Some(user) = user {
     let passhash = hash(&format!("{}{}", user_login.password, user.salt));

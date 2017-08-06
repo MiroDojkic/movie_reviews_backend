@@ -13,6 +13,7 @@ use std::env;
 pub mod schema;
 pub mod models;
 pub mod controllers;
+pub mod repositories;
 pub mod utils;
 
 pub fn establish_connection() -> PgConnection {
