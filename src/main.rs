@@ -10,23 +10,23 @@ use std::env;
 use dotenv::dotenv;
 use iron::prelude::*;
 use router::Router;
-use diesel::migrations::{run_pending_migrations};
+use diesel::migrations::run_pending_migrations;
 
 fn main() {
-  dotenv().ok();
+    dotenv().ok();
 
-  let connection = establish_connection();
-  match run_pending_migrations(&connection) {
-    Ok(_) => println!("Migrations done"),
-    Err(err) => println!("Migrations failed: {:?}", err),
-  }
+    let connection = establish_connection();
+    match run_pending_migrations(&connection) {
+        Ok(_) => println!("Migrations done"),
+        Err(err) => println!("Migrations failed: {:?}", err),
+    }
 
-  let port = env::var("PORT").expect("PORT must be set");
-  let host = format!("{}:{}", "0.0.0.0", port);
-  let mut router = Router::new();
+    let port = env::var("PORT").expect("PORT must be set");
+    let host = format!("{}:{}", "0.0.0.0", port);
+    let mut router = Router::new();
 
-  router.get("/", controllers::user::index, "index");
-  router.post("/login", controllers::auth::login, "login");
+    router.get("/", controllers::user::index, "index");
+    router.post("/login", controllers::auth::login, "login");
 
-  Iron::new(router).http(host).unwrap();
+    Iron::new(router).http(host).unwrap();
 }
