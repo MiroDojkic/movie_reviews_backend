@@ -1,7 +1,10 @@
 extern crate jsonwebtoken as jwt;
+
 use super::bodyparser;
 use iron::prelude::*;
 use iron::status;
+use iron::headers::{Authorization, Bearer};
+use iron::error::HttpError;
 use self::jwt::errors::Error;
 use self::jwt::errors::ErrorKind::{InvalidToken, InvalidIssuer};
 
@@ -21,7 +24,7 @@ pub fn login(req: &mut Request) -> IronResult<Response> {
         Ok(Some(user)) => {
             match get_jwt(&user) {
                 Ok(token) => Ok(Response::with((status::Ok, token.to_string()))),
-                Err(e) => Err(get_jwt_error_handler(e)),
+                Err(e) => Err(IronError::new(e, status::InternalServerError)),
             }
         }
         Ok(None) => Ok(Response::with((status::NotFound, "Bad credentials!"))),
@@ -30,16 +33,24 @@ pub fn login(req: &mut Request) -> IronResult<Response> {
 }
 
 pub fn authenticate(req: &mut Request) -> IronResult<()> {
-    if req.url.to_string() == "/login" {
+    let path = req.url.path().join("/");
+
+    if path.starts_with("login") {
+        println!("Im in!");
         return Ok(());
     }
 
-    match req.headers.get_raw("Authorization") {
-        Some(something) => {
-            println!("Is hit BEFORE");
-            Ok(())
-        },
-        None => Ok(())
+    match req.headers.get::<Authorization<Bearer>>() {
+        Some(authorization) => {
+            match get_jwt_data(&authorization.token) {
+                Ok(token_data) => Ok(()),
+                Err(e) => Err(get_jwt_error_handler(e)),
+            }
+        }
+        None => Err(IronError::new(
+            HttpError::Header,
+            status::InternalServerError,
+        )),
     }
 }
 
