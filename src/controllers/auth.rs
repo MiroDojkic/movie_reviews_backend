@@ -42,7 +42,7 @@ pub fn authenticate(req: &mut Request) -> IronResult<()> {
     match req.headers.get::<Authorization<Bearer>>() {
         Some(authorization) => {
             match get_jwt_data(&authorization.token) {
-                Ok(token_data) => Ok(()),
+                Ok() => Ok(()),
                 Err(e) => Err(get_jwt_error_handler(e)),
             }
         }
