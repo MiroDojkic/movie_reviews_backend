@@ -52,8 +52,5 @@ pub fn get_jwt_data(jwt: &String) -> Result<TokenData<Claims>, Error> {
     let jwt_secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
     let validation = Validation { ..Validation::default() };
 
-    match decode::<Claims>(&jwt, jwt_secret.as_ref(), &validation) {
-        Ok(token_data) => Ok(token_data),
-        Err(e) => Err(e)
-    }
+    decode::<Claims>(&jwt, jwt_secret.as_ref(), &validation)
 }
