@@ -36,7 +36,6 @@ pub fn authenticate(req: &mut Request) -> IronResult<()> {
     let path = req.url.path().join("/");
 
     if path.starts_with("login") {
-        println!("Im in!");
         return Ok(());
     }
 
