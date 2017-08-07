@@ -25,5 +25,8 @@ fn main() {
     router.get("/", controllers::user::index, "index");
     router.post("/login", controllers::auth::login, "login");
 
-    Iron::new(router).http(host).unwrap();
+    let mut chain = Chain::new(router);
+    chain.link_before(controllers::auth::authenticate);
+
+    Iron::new(chain).http(host).unwrap();
 }

@@ -3,7 +3,7 @@ extern crate jsonwebtoken as jwt;
 
 use self::crypto::digest::Digest;
 use self::crypto::sha2::Sha256;
-use self::jwt::{encode, Header};
+use self::jwt::{encode, decode, Header, Validation, TokenData};
 use self::jwt::errors::Error;
 use std::env;
 
@@ -24,7 +24,7 @@ pub fn hash(pwd: &str) -> String {
     hasher.result_str()
 }
 
-pub fn authenticate(user_login: &UserLogin) -> Option<User> {
+pub fn match_user_credentials(user_login: &UserLogin) -> Option<User> {
     let user = user_repository::get_by_email(&user_login.email);
 
     if let Some(user) = user {
@@ -46,4 +46,14 @@ pub fn get_jwt(user: &User) -> Result<String, Error> {
     };
 
     encode(&Header::default(), &claims, jwt_secret.as_ref())
+}
+
+pub fn get_jwt_data(jwt: String) -> Result<TokenData<Claims>, Error> {
+    let jwt_secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
+    let validation = Validation { ..Validation::default() };
+
+    match decode::<Claims>(&jwt, jwt_secret.as_ref(), &validation) {
+        Ok(token_data) => Ok(token_data),
+        Err(e) => Err(e)
+    }
 }
