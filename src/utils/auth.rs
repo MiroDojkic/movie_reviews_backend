@@ -1,11 +1,21 @@
 extern crate crypto;
+extern crate jsonwebtoken as jwt;
 
 use self::crypto::digest::Digest;
 use self::crypto::sha2::Sha256;
+use self::jwt::{encode, Header};
+use self::jwt::errors::Error;
+use std::env;
 
 use models::user::*;
 use models::auth::*;
 use repositories::user_repository;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Claims {
+    sub: String,
+    username: String,
+}
 
 pub fn hash(pwd: &str) -> String {
     let mut hasher = Sha256::new();
@@ -24,5 +34,16 @@ pub fn authenticate(user_login: &UserLogin) -> Option<User> {
             return Some(user);
         }
     };
-    return None;
+
+    None
+}
+
+pub fn get_jwt(user: &User) -> Result<String, Error> {
+    let jwt_secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
+    let claims = Claims {
+        sub: user.email.to_string(),
+        username: user.username.to_string(),
+    };
+
+    encode(&Header::default(), &claims, jwt_secret.as_ref())
 }

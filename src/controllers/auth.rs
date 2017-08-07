@@ -1,10 +1,9 @@
 extern crate jsonwebtoken as jwt;
-
 use super::bodyparser;
 use iron::prelude::*;
 use iron::status;
-use self::jwt::{encode, decode, Header, Validation};
-use self::jwt::errors::ErrorKind;
+use self::jwt::errors::Error;
+use self::jwt::errors::ErrorKind::{InvalidToken, InvalidIssuer};
 
 use models::auth::*;
 use utils::auth::*;
@@ -19,8 +18,21 @@ pub fn login(req: &mut Request) -> IronResult<Response> {
     };
 
     match user {
-        Ok(Some(user)) => Ok(Response::with((status::Ok, format!("{}", user.email)))),
+        Ok(Some(user)) => {
+            match get_jwt(&user) {
+                Ok(token) => Ok(Response::with((status::Ok, token.to_string()))),
+                Err(error) => Err(get_jwt_error_handler(error)),
+            }
+        }
         Ok(None) => Ok(Response::with((status::NotFound, "Bad credentials!"))),
-        Err(e) => Err(IronError::new(e, status::InternalServerError)),
+        Err(error) => Err(IronError::new(error, status::InternalServerError)),
+    }
+}
+
+fn get_jwt_error_handler(error: Error) -> IronError {
+    match *error.kind() {
+        InvalidToken => IronError::new(error, status::Unauthorized),
+        InvalidIssuer => IronError::new(error, status::Unauthorized),
+        _ => IronError::new(error, status::InternalServerError)
     }
 }

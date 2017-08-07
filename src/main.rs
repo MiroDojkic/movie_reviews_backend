@@ -7,14 +7,11 @@ extern crate common;
 use common::{establish_connection, controllers};
 use std::env;
 
-use dotenv::dotenv;
 use iron::prelude::*;
 use router::Router;
 use diesel::migrations::run_pending_migrations;
 
 fn main() {
-    dotenv().ok();
-
     let connection = establish_connection();
     match run_pending_migrations(&connection) {
         Ok(_) => println!("Migrations done"),
