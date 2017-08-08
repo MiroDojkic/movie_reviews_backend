@@ -28,7 +28,7 @@ pub fn login(req: &mut Request) -> IronResult<Response> {
             }
         }
         Ok(None) => Ok(Response::with((status::NotFound, "Bad credentials!"))),
-        Err(e) => Err(IronError::new(e, status::InternalServerError)),
+        Err(e) => Err(IronError::new(e, status::BadRequest)),
     }
 }
 
