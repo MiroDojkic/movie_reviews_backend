@@ -10,3 +10,6 @@
 
 # Editor config
 .vscode
+
+# Sublime
+*.sublime*
