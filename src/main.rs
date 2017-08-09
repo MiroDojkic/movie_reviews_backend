@@ -23,6 +23,11 @@ fn main() {
     let mut router = Router::new();
 
     router.get("/", controllers::user::index, "index");
+    router.post(
+        "/registration",
+        controllers::user::registration,
+        "registration",
+    );
     router.post("/login", controllers::auth::login, "login");
 
     let mut chain = Chain::new(router);

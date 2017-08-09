@@ -1,6 +1,8 @@
 extern crate serde;
 extern crate serde_json;
 
+use schema::users;
+
 #[derive(Debug, Queryable, Serialize, Deserialize)]
 pub struct User {
     pub id: i32,
@@ -8,4 +10,12 @@ pub struct User {
     pub email: String,
     pub password: String,
     pub salt: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Insertable)]
+#[table_name = "users"]
+pub struct NewUser {
+    pub username: String,
+    pub email: String,
+    pub password: String,
 }
