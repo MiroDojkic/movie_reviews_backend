@@ -1,10 +1,11 @@
-extern crate jsonwebtoken as jwt;
+extern crate regex;
 
 use super::bodyparser;
 use iron::prelude::*;
-use iron::status;
+use iron::{status, Url};
 use iron::headers::{Authorization, Bearer};
 use iron::error::HttpError;
+use self::regex::{Regex, Error};
 
 use models::auth::*;
 use utils::auth::*;
@@ -27,10 +28,11 @@ pub fn login(req: &mut Request) -> IronResult<Response> {
     }
 }
 
+// Used as before_middleware to intercept anonymous users
 pub fn authenticate(req: &mut Request) -> IronResult<()> {
-    let path = req.url.path().join("/");
-
-    if path.starts_with("login") {
+    if url_contains(&req.url, vec!["login", "registration"])
+        .map_err(|e| IronError::new(e, status::BadRequest))?
+    {
         return Ok(());
     }
 
@@ -43,4 +45,12 @@ pub fn authenticate(req: &mut Request) -> IronResult<()> {
         }
         None => Err(IronError::new(HttpError::Header, status::Unauthorized)),
     }
+}
+
+fn url_contains(url: &Url, paths: Vec<&str>) -> Result<bool, Error> {
+    let path = url.path().join("/");
+    let pattern = paths.join("|");
+    let regex = Regex::new(&pattern);
+
+    regex.map(|re| re.is_match(&path))
 }
