@@ -6,6 +6,7 @@ use iron::error::HttpError;
 
 use models::user::{NewUser, UserRegistration};
 use repositories::user_repository;
+use utils::auth::hash;
 
 pub fn index(_: &mut Request) -> IronResult<Response> {
     let users = user_repository::get_all();
@@ -21,12 +22,12 @@ pub fn registration(req: &mut Request) -> IronResult<Response> {
     match new_user {
         Ok(Some(parsed_user)) => {
             let salt = thread_rng().gen_ascii_chars().take(10).collect();
-
+            let password_with_salt = format!("{}{}", parsed_user.password.to_string(), salt);
 
             let new_user_with_salt = NewUser {
                 username: parsed_user.username.to_string(),
                 email: parsed_user.email.to_string(),
-                password: parsed_user.password.to_string(),
+                password: hash(&password_with_salt),
                 salt: salt,
             };
 
