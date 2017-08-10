@@ -28,8 +28,10 @@ pub fn login(req: &mut Request) -> IronResult<Response> {
 
 // Used as before_middleware to intercept anonymous users
 pub fn authenticate(req: &mut Request) -> IronResult<()> {
-    if includes_path(vec!["login", "registration"], &req.url)
-        .map_err(|e| IronError::new(e, status::InternalServerError))?
+    let whitelisted = vec!["login", "registration"];
+    if includes_path(whitelisted, &req.url).map_err(|e| {
+        IronError::new(e, status::InternalServerError)
+    })?
     {
         return Ok(());
     }

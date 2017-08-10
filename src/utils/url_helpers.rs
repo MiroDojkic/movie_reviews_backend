@@ -1,5 +1,3 @@
-
-
 use iron::Url;
 use super::regex::{Regex, Error};
 
