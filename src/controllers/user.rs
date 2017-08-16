@@ -1,12 +1,12 @@
 use super::bodyparser;
-use super::rand::{thread_rng, Rng};
+
 use iron::prelude::*;
 use iron::status;
-use iron::error::HttpError;
 
 use models::user::{NewUser, UserRegistration};
 use repositories::user_repository;
-use utils::auth::hash;
+use utils::auth::{hash, get_salt};
+use utils::validation::validate_email;
 
 pub fn index(_: &mut Request) -> IronResult<Response> {
     let users = user_repository::get_all();
@@ -21,7 +21,13 @@ pub fn registration(req: &mut Request) -> IronResult<Response> {
 
     match new_user {
         Ok(Some(parsed_user)) => {
-            let salt = thread_rng().gen_ascii_chars().take(10).collect();
+            if let Ok(false) = validate_email(parsed_user.email.to_string()) {
+                return Ok(Response::with(
+                    (status::BadRequest, "Not a valid email format."),
+                ));
+            };
+
+            let salt = get_salt();
             let password_with_salt = format!("{}{}", parsed_user.password.to_string(), salt);
 
             let new_user_with_salt = NewUser {
@@ -37,6 +43,9 @@ pub fn registration(req: &mut Request) -> IronResult<Response> {
                     Ok(Response::with((status::Ok, json!(user).to_string())))
                 })
         }
-        Ok(None) | Err(_) => Err(IronError::new(HttpError::Header, status::BadRequest)),
+        Ok(None) => Ok(Response::with(
+            (status::BadRequest, "Missing registration data."),
+        )),
+        Err(e) => Err(IronError::new(e, status::BadRequest)),
     }
 }

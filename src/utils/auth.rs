@@ -1,10 +1,12 @@
 extern crate crypto;
+extern crate rand;
 extern crate jsonwebtoken as jwt;
 
 use self::crypto::digest::Digest;
 use self::crypto::sha2::Sha256;
 use self::jwt::{encode, decode, Header, Validation, TokenData};
 use self::jwt::errors::Error;
+use self::rand::{thread_rng, Rng};
 use std::env;
 
 use models::user::*;
@@ -53,4 +55,8 @@ pub fn get_jwt_data(jwt: &String) -> Result<TokenData<Claims>, Error> {
     let validation = Validation { ..Validation::default() };
 
     decode::<Claims>(&jwt, jwt_secret.as_ref(), &validation)
+}
+
+pub fn get_salt() -> String {
+    return thread_rng().gen_ascii_chars().take(10).collect();
 }
