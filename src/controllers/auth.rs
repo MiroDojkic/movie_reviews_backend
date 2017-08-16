@@ -1,41 +1,38 @@
-extern crate jsonwebtoken as jwt;
-
 use super::bodyparser;
 use iron::prelude::*;
 use iron::status;
 use iron::headers::{Authorization, Bearer};
 use iron::error::HttpError;
-use self::jwt::errors::Error;
-use self::jwt::errors::ErrorKind::{InvalidToken, InvalidIssuer};
 
 use models::auth::*;
 use utils::auth::*;
+use utils::url_helpers::includes_path;
 
 pub fn login(req: &mut Request) -> IronResult<Response> {
     let user_login = req.get::<bodyparser::Struct<UserLogin>>();
 
-    let user = match user_login {
-        Ok(Some(user_login)) => Ok(match_user_credentials(&user_login)),
-        Ok(None) => Ok(None),
-        Err(e) => Err(e),
-    };
+    let user = user_login
+        .map_err(|e| IronError::new(e, status::BadRequest))?
+        .and_then(|user_login| match_user_credentials(&user_login));
 
     match user {
-        Ok(Some(user)) => {
+        Some(user) => {
             match get_jwt(&user) {
                 Ok(token) => Ok(Response::with((status::Ok, token.to_string()))),
                 Err(e) => Err(IronError::new(e, status::InternalServerError)),
             }
         }
-        Ok(None) => Ok(Response::with((status::NotFound, "Bad credentials!"))),
-        Err(e) => Err(IronError::new(e, status::BadRequest)),
+        None => Ok(Response::with((status::NotFound, "Bad credentials!"))),
     }
 }
 
+// Used as before_middleware to intercept anonymous users
 pub fn authenticate(req: &mut Request) -> IronResult<()> {
-    let path = req.url.path().join("/");
-
-    if path.starts_with("login") {
+    let whitelisted = vec!["login", "registration"];
+    if includes_path(whitelisted, &req.url).map_err(|e| {
+        IronError::new(e, status::InternalServerError)
+    })?
+    {
         return Ok(());
     }
 
@@ -43,20 +40,9 @@ pub fn authenticate(req: &mut Request) -> IronResult<()> {
         Some(authorization) => {
             match get_jwt_data(&authorization.token) {
                 Ok(_) => Ok(()),
-                Err(e) => Err(get_jwt_error_handler(e)),
+                Err(e) => Err(IronError::new(e, status::Unauthorized)),
             }
         }
-        None => Err(IronError::new(
-            HttpError::Header,
-            status::InternalServerError,
-        )),
-    }
-}
-
-fn get_jwt_error_handler(error: Error) -> IronError {
-    match *error.kind() {
-        InvalidToken => IronError::new(error, status::Unauthorized),
-        InvalidIssuer => IronError::new(error, status::Unauthorized),
-        _ => IronError::new(error, status::InternalServerError),
+        None => Err(IronError::new(HttpError::Header, status::Unauthorized)),
     }
 }
