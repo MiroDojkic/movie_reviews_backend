@@ -1,5 +1,4 @@
-extern crate serde;
-extern crate serde_json;
+use schema::users;
 
 #[derive(Debug, Queryable, Serialize, Deserialize)]
 pub struct User {
