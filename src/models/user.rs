@@ -1,7 +1,5 @@
 use schema::users;
 
-use schema::users;
-
 #[derive(Debug, Queryable, Serialize, Deserialize)]
 pub struct User {
     pub id: i32,
