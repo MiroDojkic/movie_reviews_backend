@@ -1,5 +1,4 @@
-extern crate serde;
-extern crate serde_json;
+use schema::users;
 
 use schema::users;
 
