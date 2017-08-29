@@ -1,5 +1,5 @@
-use super::Category;
-use schema::{categories, movies};
+use super::category::Category;
+use schema::{categorys, movies};
 
 #[derive(Debug, Clone, Deserialize, Identifiable, Queryable, Associations)]
 #[belongs_to(Category)]

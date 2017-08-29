@@ -29,6 +29,12 @@ fn main() {
         "registration",
     );
     router.post("/login", controllers::auth::login, "login");
+    router.get("/reviews", controllers::review::all, "reviews");
+    router.post(
+        "/reviews/create",
+        controllers::review::create,
+        "create_review",
+    );
 
     let mut chain = Chain::new(router);
     chain.link_before(controllers::auth::authenticate);
