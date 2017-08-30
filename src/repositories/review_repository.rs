@@ -13,6 +13,14 @@ pub fn get_all() -> QueryResult<Vec<Review>> {
     reviews.load::<Review>(&connection)
 }
 
+pub fn get_by_user(identificator: i32) -> QueryResult<Vec<Review>> {
+    let connection = establish_connection();
+
+    reviews.filter(user_id.eq(identificator)).load::<Review>(
+        &connection,
+    )
+}
+
 pub fn create(new_review: &NewReview) -> QueryResult<Review> {
     let connection = establish_connection();
 

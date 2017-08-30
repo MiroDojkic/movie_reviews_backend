@@ -8,6 +8,7 @@ extern crate serde_json;
 extern crate serde_derive;
 extern crate iron;
 extern crate dotenv;
+extern crate router;
 
 use diesel::prelude::*;
 use diesel::pg::PgConnection;

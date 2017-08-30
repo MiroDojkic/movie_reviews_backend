@@ -30,6 +30,11 @@ fn main() {
     );
     router.post("/login", controllers::auth::login, "login");
     router.get("/reviews", controllers::review::all, "reviews");
+    router.get(
+        "/reviews/user/:id",
+        controllers::review::get_by_user,
+        "reviews_by_user",
+    );
     router.post(
         "/reviews/create",
         controllers::review::create,
