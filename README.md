@@ -15,6 +15,6 @@ Checking out Rust ecosystem for building RESTful API.
 `echo DATABASE_URL=postgres://<user>:<password>@localhost/<database_name> > .env`
 4) Run `cargo run`
 
-# :shipit: Deployment
+# :white_check_mark: Deployment
 CI is set using Heroku, last version at:  
 :point_right: [movie-reviews-api.herokuapp.com](https://movie-reviews-api.herokuapp.com)
