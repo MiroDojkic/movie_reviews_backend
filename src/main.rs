@@ -29,6 +29,7 @@ fn main() {
         "registration",
     );
     router.post("/login", controllers::auth::login, "login");
+
     router.get("/reviews", controllers::review::all, "reviews");
     router.get(
         "/reviews/user/:id",

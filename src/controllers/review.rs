@@ -16,28 +16,22 @@ pub fn all(_: &mut Request) -> IronResult<Response> {
 }
 
 pub fn get_by_user(req: &mut Request) -> IronResult<Response> {
-    let request_extensions = req.extensions.get::<Router>();
-    match request_extensions {
-        Some(request_extensions) => {
-            let user_id = request_extensions.find("id");
+    let user_id = req.extensions.get::<Router>().and_then(|extension| {
+        extension.find("id")
+    });
 
-            match user_id {
-                Some(user_id) => {
-                    let parsed_id = user_id.parse::<i32>();
-
-                    match parsed_id {
-                        Ok(parsed_id) => {
-                            review_repository::get_by_user(parsed_id)
-                                .map_err(|e| IronError::new(e, status::InternalServerError))
-                                .and_then(|reviews| {
-                                    Ok(Response::with((status::Ok, json!(reviews).to_string())))
-                                })
-                        }
-                        Err(e) => Err(IronError::new(e, status::BadRequest)),
-                    }
-                }
-                None => Ok(Response::with((status::BadRequest, "Missing user id!"))),
-            }
+    match user_id {
+        Some(user_id) => {
+            user_id
+                .parse::<i32>()
+                .map_err(|e| IronError::new(e, status::BadRequest))
+                .and_then(|parsed_id| {
+                    review_repository::get_by_user(parsed_id)
+                        .map_err(|e| IronError::new(e, status::InternalServerError))
+                        .and_then(|reviews| {
+                            Ok(Response::with((status::Ok, json!(reviews).to_string())))
+                        })
+                })
         }
         None => Ok(Response::with((status::BadRequest, "Missing user id!"))),
     }
