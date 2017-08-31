@@ -26,11 +26,12 @@ pub fn get_by_user(req: &mut Request) -> IronResult<Response> {
                 .parse::<i32>()
                 .map_err(|e| IronError::new(e, status::BadRequest))
                 .and_then(|parsed_id| {
-                    review_repository::get_by_user(parsed_id)
-                        .map_err(|e| IronError::new(e, status::InternalServerError))
-                        .and_then(|reviews| {
-                            Ok(Response::with((status::Ok, json!(reviews).to_string())))
-                        })
+                    review_repository::get_by_user(parsed_id).map_err(|e| {
+                        IronError::new(e, status::InternalServerError)
+                    })
+                })
+                .and_then(|reviews| {
+                    Ok(Response::with((status::Ok, json!(reviews).to_string())))
                 })
         }
         None => Ok(Response::with((status::BadRequest, "Missing user id!"))),
