@@ -37,12 +37,11 @@ pub fn authenticate(req: &mut Request) -> IronResult<()> {
     }
 
     match req.headers.get::<Authorization<Bearer>>() {
-        Some(authorization) => {
+        Some(authorization) =>
             match get_jwt_data(&authorization.token) {
                 Ok(_) => Ok(()),
                 Err(e) => Err(IronError::new(e, status::Unauthorized)),
             }
-        }
         None => Err(IronError::new(HttpError::Header, status::Unauthorized)),
     }
 }
