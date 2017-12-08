@@ -1,7 +1,6 @@
-extern crate diesel;
-
-use self::diesel::prelude::*;
-use self::diesel::result::QueryResult;
+use diesel;
+use diesel::prelude::*;
+use diesel::result::QueryResult;
 use schema::users;
 use schema::users::dsl::*;
 
